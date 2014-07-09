@@ -87,7 +87,6 @@ function runepsilonnbody {
 }
 function runnbodycanonical {
 	echo "Running REBOUND canonical $1"
-	rm -f energy_$1_canonical.txt
 	canonical="0.01"
 	dt="10."
 	if [ $2 -eq 1 ]; then 
@@ -155,9 +154,9 @@ do
 
 	make -s ias15
 	runepsilonnbody ias15 -3 0
-	runnbodycanonical ias15 0
+       runnbodycanonical ias15 0
 	runnbodycanonical ias15 1
-      
+     
 	make -s ra15
 	runepsilonnbody ra15 -10 -8
 
