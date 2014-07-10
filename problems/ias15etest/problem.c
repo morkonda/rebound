@@ -54,15 +54,12 @@ void problem_init(int argc, char* argv[]){
 	const double k 	= 0.01720209895;	// Gaussian constant 
 	G		= k*k;
 
-	integrator_epsilon = 0;//input_get_double(argc,argv,"integrator_epsilon",0.001);
+	integrator_epsilon = input_get_double(argc,argv,"integrator_epsilon",0.01);
 	integrator_force_is_velocitydependent = 0;
 	
-#ifdef OPENGL
-	display_wire	= 1;			// Show orbits.
-#endif // OPENGL
-	init_boxwidth(150); 			// Init box with width 200 astronomical units
+	init_boxwidth(1500); 			// Init box with width 200 astronomical units
 
-	double semia = 1.0;
+	double semia = 1.;
 
 	struct particle star; 
 	star.m  = 1;
@@ -73,8 +70,8 @@ void problem_init(int argc, char* argv[]){
 	
 	// The planet 
 	struct particle planet; 
-	double e = 0.999;
-	planet.m  = 0.01*star.m;
+	double e = 1.-1e-5;
+	planet.m  = 0.001*star.m;
 	planet.x  = semia*(1.+e); 
 	planet.y  = 0; 
 	planet.z  = 0; 
@@ -85,10 +82,7 @@ void problem_init(int argc, char* argv[]){
 	
 	tmax	= 365.*sqrt(semia*semia*semia/star.m);
 
-#ifndef INTEGRATOR_WH
-	// Move to barycentric frame
-	tools_move_to_center_of_momentum();
-#endif // INTEGRATOR_WH
+//	tools_move_to_center_of_momentum();
 	mpf_set_default_prec(512);
 	energy_init = energy();
 }
@@ -154,12 +148,14 @@ double energy(){
 	return mpf_get_d(energy_kinetic);
 }
 void problem_output(){
+	printf("%.20e\t",energy_init);					// 2
 	FILE* of = fopen("energy_timeseries.txt","a+"); 
 	double rel_energy = fabs((energy()-energy_init)/energy_init);
-	fprintf(of,"%e\t",t);
-	fprintf(of,"%e\t",rel_energy);
-	fprintf(of,"%e\t%e\t",particles[1].x,particles[1].y);
-	fprintf(of,"%d\t",N);
+	fprintf(of,"%.20e\t",t);						// 1
+	fprintf(of,"%.20e\t",rel_energy);					// 2
+	fprintf(of,"%.20e\t%.20e\t",particles[1].x-particles[0].x,particles[1].y-particles[0].y); 		// 3 + 4
+	fprintf(of,"%d\t",N);						// 5
+	fprintf(of,"%.20e\t",dt);						// 6
 	fprintf(of,"\n");
 	fclose(of);
 }

@@ -64,6 +64,7 @@ double 	integrator_min_dt 			= 0;	// Minimum timestep used as a floor when adapt
 double	integrator_error			= 0;	// Error estimate in last timestep (used for debugging only)
 unsigned int integrator_iterations_max		= 10;	// Maximum number of iterations in predictor/corrector loop
 unsigned long integrator_iterations_max_exceeded= 0;	// Count how many times the iteration did not converge
+const double safety_factor 			= 0.575;  // Empirically chosen so that timestep are occasionally rejected but not too often.
 
 
 const double h[8]	= { 0.0, 0.05626256053692215, 0.18024069173689236, 0.35262471711316964, 0.54715362633055538, 0.73421017721541053, 0.88532094683909577, 0.97752061356128750}; // Gauss Radau spacings
@@ -85,8 +86,13 @@ double* a0  = NULL;	//                      acceleration
 double* g[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL} ;
 double* b[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL} ;
 double* e[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL} ;
+double* br[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL} ;	// Used for resetting after timestep rejection
+double* er[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL} ;
 
 struct particle* particles_out = NULL; // Temporary particle buffer.
+void copybuffers(double* _a[7], double* _b[7], int N3);
+void predict_next_step(double ratio, int N3, double* _e[6], double* _b[6]);
+double dt_last_success;
 
 void integrator_part1(){
 	// Do nothing here. This is only used in a leapfrog-like DKD integrator.
@@ -144,9 +150,13 @@ int integrator_ias15_step() {
 			g[l] = realloc(g[l],sizeof(double)*N3);
 			b[l] = realloc(b[l],sizeof(double)*N3);
 			e[l] = realloc(e[l],sizeof(double)*N3);
+			br[l] = realloc(br[l],sizeof(double)*N3);
+			er[l] = realloc(er[l],sizeof(double)*N3);
 			for (int k=0;k<N3;k++){
 				b[l][k] = 0;
 				e[l][k] = 0;
+				br[l][k] = 0;
+				er[l][k] = 0;
 			}
 		}
 		xt = realloc(xt,sizeof(double)*N3);
@@ -186,11 +196,11 @@ int integrator_ias15_step() {
 
 	double predictor_corrector_error = 1;
 	int iterations = 0;
-	while(predictor_corrector_error>1e-10){						// Predictor corrector loop
+	while(predictor_corrector_error>1e-14){						// Predictor corrector loop
 		if (iterations>=integrator_iterations_max){
 			integrator_iterations_max_exceeded++;
 			const int integrator_iterations_warning = 1;
-			if (integrator_iterations_max_exceeded==integrator_iterations_warning && integrator_epsilon==0. && predictor_corrector_error>1e-10){
+			if (integrator_iterations_max_exceeded==integrator_iterations_warning ){
 				fprintf(stderr,"\n\033[1mWarning!\033[0m At least %d predictor corrector loops in integrator_ias15.c did not converge. This is typically an indication of the timestep being too large.\n",integrator_iterations_warning);
 			}
 			break;								// Quit predictor corrector loop
@@ -343,7 +353,7 @@ int integrator_ias15_step() {
 							const double ak  = at[k];
 							const double b6ktmp = tmp; 
 							const double errork = fabs(b6ktmp/ak);
-							if (isnormal(errork) && errork>integrator_error){
+							if (isnormal(errork) && errork>predictor_corrector_error){
 								predictor_corrector_error = errork;
 							}
 						}
@@ -359,7 +369,6 @@ int integrator_ias15_step() {
 	}
 	// Find new timestep
 	const double dt_done = dt;
-	const double safety_factor = 0.75;  // Empirically chosen so that timestep are occasionally rejected but not too often.
 	
 	if (integrator_epsilon>0){
 		// Estimate error (given by last term in series expansion) 
@@ -408,15 +417,22 @@ int integrator_ias15_step() {
 		
 		if (dt_new<integrator_min_dt) dt_new = integrator_min_dt;
 		
-		if (fabs(dt_new/safety_factor/dt_done) < 1.0) {	// New timestep is smaller.
-			if (dt_done>integrator_min_dt){
-				particles = particles_in;
-				dt = dt_new;
-				return 0; // Step rejected. Do again. 
-			}
-		}else{					// New timestep is larger.
+		if (fabs(dt_new/dt_done) < safety_factor) {	// New timestep is significantly smaller.
+			particles = particles_in;
+			dt = dt_new;
+			double ratio = dt/dt_last_success;
+			predict_next_step(ratio, N3, er, br);
+			
+			//printf("step rejexted %.20e %e %e %f\n",t, dt_done, dt_new, dt_new/dt_done);
+			//FILE* of = fopen("rejected.txt","a+");
+			//fprintf(of,"%e %e %e \n",t, particles[1].x,particles[1].y);
+			//fclose(of);
+			return 0; // Step rejected. Do again. 
+		}		
+		if (fabs(dt_new/dt_done) > 1.0) {	// New timestep is larger.
 			if (dt_new/dt_done > 1./safety_factor) dt_new = dt_done /safety_factor;	// Don't increase the timestep by too much compared to the last one.
 		}
+		//printf("step APPROVED %.20e %e %e %f %e %d %e\n",t, dt_done, dt_new, dt_new/dt_done, integrator_error, iterations, predictor_corrector_error);
 		dt = dt_new;
 	}
 
@@ -443,13 +459,20 @@ int integrator_ias15_step() {
 		particles[k].vy = v0[3*k+1];
 		particles[k].vz = v0[3*k+2];
 	}
+	dt_last_success = dt_done;
+	copybuffers(e,er,N3);		
+	copybuffers(b,br,N3);		
+	double ratio = dt/dt_done;
+	predict_next_step(ratio, N3, e, b);
+	return 1; // Success.
+}
 
-
+void predict_next_step(double ratio, int N3, double* _e[6], double* _b[6]){
 	// Predict new B values to use at the start of the next sequence. The predicted
 	// values from the last call are saved as E. The correction, BD, between the
 	// actual and predicted values of B is applied in advance as a correction.
 	//
-	const double q1 = dt / dt_done;
+	const double q1 = ratio;
 	const double q2 = q1 * q1;
 	const double q3 = q1 * q2;
 	const double q4 = q2 * q2;
@@ -458,21 +481,23 @@ int integrator_ias15_step() {
 	const double q7 = q3 * q4;
 
 	for(int k=0;k<N3;++k) {
-		double be0 = b[0][k] - e[0][k];
-		double be1 = b[1][k] - e[1][k];
-		double be2 = b[2][k] - e[2][k];
-		double be3 = b[3][k] - e[3][k];
-		double be4 = b[4][k] - e[4][k];
-		double be5 = b[5][k] - e[5][k];
-		double be6 = b[6][k] - e[6][k];
+		double be0 = _b[0][k] - _e[0][k];
+		double be1 = _b[1][k] - _e[1][k];
+		double be2 = _b[2][k] - _e[2][k];
+		double be3 = _b[3][k] - _e[3][k];
+		double be4 = _b[4][k] - _e[4][k];
+		double be5 = _b[5][k] - _e[5][k];
+		double be6 = _b[6][k] - _e[6][k];
 
-		e[0][k] = q1*(b[6][k]* 7.0 + b[5][k]* 6.0 + b[4][k]* 5.0 + b[3][k]* 4.0 + b[2][k]* 3.0 + b[1][k]*2.0 + b[0][k]);
-		e[1][k] = q2*(b[6][k]*21.0 + b[5][k]*15.0 + b[4][k]*10.0 + b[3][k]* 6.0 + b[2][k]* 3.0 + b[1][k]);
-		e[2][k] = q3*(b[6][k]*35.0 + b[5][k]*20.0 + b[4][k]*10.0 + b[3][k]* 4.0 + b[2][k]);
-		e[3][k] = q4*(b[6][k]*35.0 + b[5][k]*15.0 + b[4][k]* 5.0 + b[3][k]);
-		e[4][k] = q5*(b[6][k]*21.0 + b[5][k]* 6.0 + b[4][k]);
-		e[5][k] = q6*(b[6][k]* 7.0 + b[5][k]);
-		e[6][k] = q7* b[6][k];
+
+		e[0][k] = q1*(_b[6][k]* 7.0 + _b[5][k]* 6.0 + _b[4][k]* 5.0 + _b[3][k]* 4.0 + _b[2][k]* 3.0 + _b[1][k]*2.0 + _b[0][k]);
+		e[1][k] = q2*(_b[6][k]*21.0 + _b[5][k]*15.0 + _b[4][k]*10.0 + _b[3][k]* 6.0 + _b[2][k]* 3.0 + _b[1][k]);
+		e[2][k] = q3*(_b[6][k]*35.0 + _b[5][k]*20.0 + _b[4][k]*10.0 + _b[3][k]* 4.0 + _b[2][k]);
+		e[3][k] = q4*(_b[6][k]*35.0 + _b[5][k]*15.0 + _b[4][k]* 5.0 + _b[3][k]);
+		e[4][k] = q5*(_b[6][k]*21.0 + _b[5][k]* 6.0 + _b[4][k]);
+		e[5][k] = q6*(_b[6][k]* 7.0 + _b[5][k]);
+		e[6][k] = q7* _b[6][k];
+		
 
 		b[0][k] = e[0][k] + be0;
 		b[1][k] = e[1][k] + be1;
@@ -482,5 +507,16 @@ int integrator_ias15_step() {
 		b[5][k] = e[5][k] + be5;
 		b[6][k] = e[6][k] + be6;
 	}
-	return 1; // Success.
+}
+
+void copybuffers(double* _a[7], double* _b[7], int N3){
+	for (int i=0;i<N3;i++){	
+		_b[0][i] = _a[0][i];
+		_b[1][i] = _a[1][i];
+		_b[2][i] = _a[2][i];
+		_b[3][i] = _a[3][i];
+		_b[4][i] = _a[4][i];
+		_b[5][i] = _a[5][i];
+		_b[6][i] = _a[6][i];
+	}
 }
