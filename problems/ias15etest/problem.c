@@ -148,16 +148,18 @@ double energy(){
 	return mpf_get_d(energy_kinetic);
 }
 void problem_output(){
-	printf("%.20e\t",energy_init);					// 2
-	FILE* of = fopen("energy_timeseries.txt","a+"); 
-	double rel_energy = fabs((energy()-energy_init)/energy_init);
-	fprintf(of,"%.20e\t",t);						// 1
-	fprintf(of,"%.20e\t",rel_energy);					// 2
-	fprintf(of,"%.20e\t%.20e\t",particles[1].x-particles[0].x,particles[1].y-particles[0].y); 		// 3 + 4
-	fprintf(of,"%d\t",N);						// 5
-	fprintf(of,"%.20e\t",dt);						// 6
-	fprintf(of,"\n");
-	fclose(of);
+	if(check_output()){
+		printf("%.20e\t",energy_init);					// 2
+		FILE* of = fopen("energy_timeseries.txt","a+"); 
+		double rel_energy = fabs((energy()-energy_init)/energy_init);
+		fprintf(of,"%.20e\t",t);						// 1
+		fprintf(of,"%.20e\t",rel_energy);					// 2
+		fprintf(of,"%.20e\t%.20e\t",particles[1].x-particles[0].x,particles[1].y-particles[0].y); 		// 3 + 4
+		fprintf(of,"%d\t",N);						// 5
+		fprintf(of,"%.20e\t",dt);						// 6
+		fprintf(of,"\n");
+		fclose(of);
+	}
 }
 
 void problem_finish(){
