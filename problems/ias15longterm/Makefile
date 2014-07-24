@@ -3,7 +3,7 @@ export OPENGL=0
 export OPT=-O3
 export LIB=-lgmp
 
-wh:
+wh: FORCE
 	# Setup link to different modules
 	ln -fs gravity_direct.c ../../src/gravity.c
 	ln -fs boundaries_open.c ../../src/boundaries.c
@@ -16,7 +16,7 @@ wh:
 	# Copy result
 	cp ../../src/nbody .
 
-ias15:
+ias15: FORCE
 	# Setup link to different modules
 	ln -fs gravity_direct.c ../../src/gravity.c
 	ln -fs boundaries_open.c ../../src/boundaries.c
@@ -34,3 +34,5 @@ doc: all
 clean:
 	$(MAKE) -C ../../src/ clean
 	rm -vf nbody
+
+FORCE:
