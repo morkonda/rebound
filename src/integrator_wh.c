@@ -324,7 +324,7 @@ void drift_dan(struct particle* pv, double mu, double dt0, int* iflag){
 			double s, c, xkep;
 			drift_kepmd(dm,es,ec,&xkep,&s,&c);
 			double fchk = (xkep - ec*s + es*(1.-c) - dm);
-#define DANBYB 1.e-13
+#define DANBYB 1.e-15
 			if (fchk*fchk > DANBYB){
 				*iflag =1;
 				return;
@@ -558,7 +558,7 @@ void drift_kepmd(double dm, double es, double ec, double* x, double* s, double* 
 	double fppp = ec*(*c) - es*(*s);
 	double dx = -f/fp;
 	dx = -f/(fp + 0.5*dx*fpp);
-	dx = -f/(fp + 0.5*dx*fpp + 0.16666666666666666666*dx*dx*fppp);
+	dx = -f/(fp + 0.5*dx*fpp + 1./6.*dx*dx*fppp);
 	*x = (*x) + dx;
 
 	y = (*x)*(*x);

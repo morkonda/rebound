@@ -64,7 +64,7 @@ double 	integrator_min_dt 			= 0;	// Minimum timestep used as a floor when adapt
 double	integrator_error			= 0;	// Error estimate in last timestep (used for debugging only)
 unsigned int integrator_iterations_max		= 10;	// Maximum number of iterations in predictor/corrector loop
 unsigned long integrator_iterations_max_exceeded= 0;	// Count how many times the iteration did not converge
-const double safety_factor 			= 0.75;  // Empirically chosen so that timestep are occasionally rejected but not too often.
+const double safety_factor 			= 0.175;  // Empirically chosen so that timestep are occasionally rejected but not too often.
 
 
 const double h[8]	= { 0.0, 0.05626256053692215, 0.18024069173689236, 0.35262471711316964, 0.54715362633055538, 0.73421017721541053, 0.88532094683909577, 0.97752061356128750}; // Gauss Radau spacings
@@ -91,7 +91,7 @@ double* er[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL} ;
 
 struct particle* particles_out = NULL; // Temporary particle buffer.
 void copybuffers(double* _a[7], double* _b[7], int N3);
-void predict_next_step(double ratio, int N3, double* _e[6], double* _b[6]);
+void predict_next_step(double ratio, int N3, double* _e[7], double* _b[7]);
 double dt_last_success;
 
 void integrator_part1(){
@@ -196,7 +196,7 @@ int integrator_ias15_step() {
 
 	double predictor_corrector_error = 1;
 	int iterations = 0;
-	while(predictor_corrector_error>1e-14){						// Predictor corrector loop
+	while(predictor_corrector_error>1e-15){						// Predictor corrector loop
 		if (iterations>=integrator_iterations_max){
 			integrator_iterations_max_exceeded++;
 			const int integrator_iterations_warning = 1;
@@ -463,7 +463,7 @@ int integrator_ias15_step() {
 	return 1; // Success.
 }
 
-void predict_next_step(double ratio, int N3, double* _e[6], double* _b[6]){
+void predict_next_step(double ratio, int N3, double* _e[7], double* _b[7]){
 	// Predict new B values to use at the start of the next sequence. The predicted
 	// values from the last call are saved as E. The correction, BD, between the
 	// actual and predicted values of B is applied in advance as a correction.
