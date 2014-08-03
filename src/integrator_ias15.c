@@ -62,9 +62,9 @@ int	integrator_epsilon_global		= 1;	// if 1: estimate the fractional error by ma
 							// if 0: estimate the fractional error by max(acceleration_error/acceleration).
 double 	integrator_min_dt 			= 0;	// Minimum timestep used as a floor when adaptive timestepping is enabled.
 double	integrator_error			= 0;	// Error estimate in last timestep (used for debugging only)
-unsigned int integrator_iterations_max		= 10;	// Maximum number of iterations in predictor/corrector loop
+unsigned int integrator_iterations_max		= 12;	// Maximum number of iterations in predictor/corrector loop
 unsigned long integrator_iterations_max_exceeded= 0;	// Count how many times the iteration did not converge
-const double safety_factor 			= 0.175;  // Empirically chosen so that timestep are occasionally rejected but not too often.
+const double safety_factor 			= 0.125;  // Empirically chosen so that timestep are occasionally rejected but not too often.
 
 
 const double h[8]	= { 0.0, 0.05626256053692215, 0.18024069173689236, 0.35262471711316964, 0.54715362633055538, 0.73421017721541053, 0.88532094683909577, 0.97752061356128750}; // Gauss Radau spacings
@@ -196,10 +196,10 @@ int integrator_ias15_step() {
 
 	double predictor_corrector_error = 1;
 	int iterations = 0;
-	while(predictor_corrector_error>1e-15){						// Predictor corrector loop
+	while(predictor_corrector_error>1e-12){						// Predictor corrector loop
 		if (iterations>=integrator_iterations_max){
 			integrator_iterations_max_exceeded++;
-			const int integrator_iterations_warning = 1;
+			const int integrator_iterations_warning = 10;
 			if (integrator_iterations_max_exceeded==integrator_iterations_warning ){
 				fprintf(stderr,"\n\033[1mWarning!\033[0m At least %d predictor corrector loops in integrator_ias15.c did not converge. This is typically an indication of the timestep being too large.\n",integrator_iterations_warning);
 			}
