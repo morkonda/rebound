@@ -204,6 +204,7 @@ double output_interval 	= 1.01;
 double output_next	= 100;
 void problem_output(){
 	if (output_next<t){
+		//printf("dt = %e\n",dt/jupiter_orbital_period);
 		output_next *= output_interval;
 		char filename[4096];
 		sprintf(filename,"energy_%s.txt",input_arguments);
