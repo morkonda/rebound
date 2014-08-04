@@ -68,8 +68,6 @@ const double safety_factor 			= 0.25;  // Maximum increase/deacrease of consecut
 
 
 const double h[8]	= { 0.0, 0.05626256053692215, 0.18024069173689236, 0.35262471711316964, 0.54715362633055538, 0.73421017721541053, 0.88532094683909577, 0.97752061356128750}; // Gauss Radau spacings
-const double xc[8] 	= { 0.5, 0.16666666666666667, 0.08333333333333333, 0.05, 0.03333333333333333, 0.02380952380952381, 0.01785714285714286, 0.01388888888888889}; // 1/2,  1/6,  1/12, 1/20, 1/30, 1/42, 1/56, 1/72
-const double vc[7] 	= { 0.5, 0.3333333333333333, 0.25, 0.2, 0.1666666666666667, 0.1428571428571429, 0.125}; // 1/2,  1/3,  1/4,  1/5,  1/6,  1/7,  1/8
 
 double r[28],c[21],d[21],s[9]; // These constants will be set dynamically.
 
@@ -433,10 +431,9 @@ int integrator_ias15_step() {
 	// Find new position and velocity values at end of the sequence
 	const double dt_done2 = dt_done * dt_done;
 	for(int k=0;k<N3;++k) {
-		x0[k] += (xc[7]*b[6][k] + xc[6]*b[5][k] + xc[5]*b[4][k] + xc[4]*b[3][k] + xc[3]*b[2][k] + xc[2]*b[1][k] + xc[1]*b[0][k] + xc[0]*a0[k]) 
+		x0[k] += (b[6][k]/72. + b[5][k]/56. + b[4][k]/42. + b[3][k]/30. + b[2][k]/20. + b[1][k]/12. + b[0][k]/6. + a0[k]/2.) 
 			* dt_done2 + v0[k] * dt_done;
-
-		v0[k] += (vc[6]*b[6][k] + vc[5]*b[5][k] + vc[4]*b[4][k] + vc[3]*b[3][k] + vc[2]*b[2][k] + vc[1]*b[1][k] + vc[0]*b[0][k] + a0[k])
+		v0[k] += (b[6][k]/8. + b[5][k]/7. + b[4][k]/6. + b[3][k]/5. + b[2][k]/4. + b[1][k]/3. + b[0][k]/2. + a0[k])
 			* dt_done;
 	}
 

@@ -1,6 +1,6 @@
 #!/bin/gnuplot
 set output "plot.pdf" 
-set terminal pdf color enhanced size 6in,9in
+set terminal pdf color enhanced size 6in,7in
 set logscale xyx2y2
 set autoscale fix
 set yrange [1e-16:0.9]
@@ -13,10 +13,10 @@ set st d p
 bottommargin = 0.08
 keymargin = 0.08
 topmargin = 0.05
-ny = 5
+ny = 4
 px = 0
 
-do for [i=0:8]{
+do for [i=0:7]{
 	if (i==8) {
 		set xrange [7:1200]
 	}
@@ -45,7 +45,7 @@ do for [i=0:8]{
 		set format y  ""
 		py = 0.5
 	}
-	if (i/2==ny-1){
+	if (i/2==ny-1 || (i-1)/2==ny-1){
 		px=keymargin
 	}else{
 		px=(1.-bottommargin-topmargin-keymargin)/ny*(ny-i/2-1)+bottommargin+keymargin
@@ -54,10 +54,10 @@ do for [i=0:8]{
 
 	set origin py,px
 
-	if (i/2==ny-1){
+	if (i/2==ny-1 || (i-1)/2==ny-1){
 		set size 0.5,(1.-bottommargin-topmargin-keymargin)/ny+bottommargin
 		set xlabel "time to complete run [s]"
-		set bmargin 5
+		set bmargin 6
 		set format x "%g" 
 	}else{
 		set size 0.5,(1.-bottommargin-topmargin-keymargin)/ny
@@ -69,6 +69,10 @@ do for [i=0:8]{
 	titfile=system("sed '".(i+1)."q;d' titles.txt");
 	set label 1 titfile at graph 0.01,0.1 left
 
+	if (i==7){
+		set rmargin 14.95
+		set bmargin 7.57
+	}
 
 	plot \
 	"testcase_".i."/energy_ias15.txt" t "IAS15, {/Symbol e}=0.001-1.0", \
@@ -79,5 +83,5 @@ do for [i=0:8]{
 	"testcase_".i."/energy_radau.txt" t "MERCURY RADAU" lt 2,  \
 	"testcase_".i."/energy_mvs.txt" t "      MERCURY MVS" lt 7,  \
 	"testcase_".i."/energy_ias15_canonical.txt" notit ps 4 lt 6, \
-	"testcase_".i."/energy_ias15_canonical.txt" notit lt 1, \
+	"testcase_".i."/energy_ias15_canonical.txt" notit lt 1
 }
