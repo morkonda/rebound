@@ -209,14 +209,14 @@ int integrator_ias15_step() {
 		for(int n=1;n<8;n++) {							// Loop over interval using Gauss-Radau spacings
 
 			s[0] = dt * h[n];
-			s[1] = s[0] * s[0] * 0.5;
-			s[2] = s[1] * h[n] * 0.3333333333333333;
-			s[3] = s[2] * h[n] * 0.5;
-			s[4] = s[3] * h[n] * 0.6;
-			s[5] = s[4] * h[n] * 0.6666666666666667;
-			s[6] = s[5] * h[n] * 0.7142857142857143;
-			s[7] = s[6] * h[n] * 0.75;
-			s[8] = s[7] * h[n] * 0.7777777777777778;
+			s[1] = s[0] * s[0] / 2.;
+			s[2] = s[1] * h[n] / 3.;
+			s[3] = s[2] * h[n] / 2.;
+			s[4] = 3. * s[3] * h[n] / 5.;
+			s[5] = 2. * s[4] * h[n] / 3.;
+			s[6] = 5. * s[5] * h[n] / 7.;
+			s[7] = 3. * s[6] * h[n] / 4.;
+			s[8] = 7. * s[7] * h[n] / 9.;
 
 			for(int k=0;k<N3;k++) {						// Predict positions at interval n using b values
 				xt[k] = 	s[8]*b[6][k] + s[7]*b[5][k] + s[6]*b[4][k] + s[5]*b[3][k] + s[4]*b[2][k] + s[3]*b[1][k] + s[2]*b[0][k] + s[1]*a0[k] + s[0]*v0[k] + x0[k];
@@ -224,13 +224,13 @@ int integrator_ias15_step() {
 			
 			if (integrator_force_is_velocitydependent){
 				s[0] = dt * h[n];
-				s[1] = s[0] * h[n] * 0.5;
-				s[2] = s[1] * h[n] * 0.6666666666666667;
-				s[3] = s[2] * h[n] * 0.75;
-				s[4] = s[3] * h[n] * 0.8;
-				s[5] = s[4] * h[n] * 0.8333333333333333;
-				s[6] = s[5] * h[n] * 0.8571428571428571;
-				s[7] = s[6] * h[n] * 0.875;
+				s[1] =      s[0] * h[n] / 2.;
+				s[2] = 2. * s[1] * h[n] / 3.;
+				s[3] = 3. * s[2] * h[n] / 4.;
+				s[4] = 4. * s[3] * h[n] / 5.;
+				s[5] = 5. * s[4] * h[n] / 6.;
+				s[6] = 6. * s[5] * h[n] / 7.;
+				s[7] = 7. * s[6] * h[n] / 8.;
 
 				for(int k=0;k<N3;k++) {					// Predict velocities at interval n using b values
 					vt[k] =  s[7]*b[6][k] + s[6]*b[5][k] + s[5]*b[4][k] + s[4]*b[3][k] + s[3]*b[2][k] + s[2]*b[1][k] + s[1]*b[0][k] + s[0]*a0[k] + v0[k];
