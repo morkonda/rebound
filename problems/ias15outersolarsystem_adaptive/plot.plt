@@ -1,22 +1,25 @@
 #!/bin/gnuplot
 set output "plot.pdf" 
-set terminal pdf color enhanced size 6in,7in
+set terminal pdf color enhanced size 6in,9in
 set logscale xyx2y2
 set autoscale fix
 set yrange [1e-16:0.9]
 set xrange [0.07:12]
-set multiplot layout 4,2
+set multiplot 
 unset key
 set ytics 1000
 set st d p
 
 bottommargin = 0.08
-keymargin = 0.1
+keymargin = 0.08
 topmargin = 0.05
-ny = 4
+ny = 5
 px = 0
 
-do for [i=0:7]{
+do for [i=0:8]{
+	if (i==8) {
+		set xrange [7:1200]
+	}
 	if (i==2) {
 		set key at screen 0.5,0.05 center horizontal 
 	}else{
@@ -32,7 +35,7 @@ do for [i=0:7]{
 		if (i/2==(ny-1)/2){
 			set ylabel "relative energy error"
 		}else{
-			unset ylabel
+			set ylabel " "
 		}
 		py = 0
 	}else{
@@ -76,4 +79,5 @@ do for [i=0:7]{
 	"testcase_".i."/energy_radau.txt" t "MERCURY RADAU" lt 2,  \
 	"testcase_".i."/energy_mvs.txt" t "      MERCURY MVS" lt 7,  \
 	"testcase_".i."/energy_ias15_canonical.txt" notit ps 4 lt 6, \
+	"testcase_".i."/energy_ias15_canonical.txt" notit lt 1, \
 }

@@ -56,7 +56,7 @@
 #endif
 
 int 	integrator_force_is_velocitydependent	= 1;	// Turn this off to safe some time if the force is not velocity dependent.
-double 	integrator_epsilon 			= 0.01;	// Magnitude of last term in series expansion devided by the acceleration is smaller than this value or timestep is rejected. 
+double 	integrator_epsilon 			= 5e-9;	// Precision parameter 
 							// If it is zero, then a constant timestep is used. 
 int	integrator_epsilon_global		= 1;	// if 1: estimate the fractional error by max(acceleration_error)/max(acceleration), where max is take over all particles.
 							// if 0: estimate the fractional error by max(acceleration_error/acceleration).
@@ -64,7 +64,7 @@ double 	integrator_min_dt 			= 0;	// Minimum timestep used as a floor when adapt
 double	integrator_error			= 0;	// Error estimate in last timestep (used for debugging only)
 unsigned int integrator_iterations_max		= 12;	// Maximum number of iterations in predictor/corrector loop
 unsigned long integrator_iterations_max_exceeded= 0;	// Count how many times the iteration did not converge
-const double safety_factor 			= 0.125;  // Empirically chosen so that timestep are occasionally rejected but not too often.
+const double safety_factor 			= 0.25;  // Maximum increase/deacrease of consecutve timesteps.
 
 
 const double h[8]	= { 0.0, 0.05626256053692215, 0.18024069173689236, 0.35262471711316964, 0.54715362633055538, 0.73421017721541053, 0.88532094683909577, 0.97752061356128750}; // Gauss Radau spacings
@@ -409,8 +409,6 @@ int integrator_ias15_step() {
 		if  (isnormal(integrator_error)){ 	
 			// if error estimate is available increase by more educated guess
 		 	dt_new = pow(integrator_epsilon/integrator_error,1./7.)*dt_done;
-			// Add a safety factor to make sure we do not need to repeat timestep
-			dt_new *= safety_factor;  
 		}else{					// In the rare case that the error estimate doesn't give a finite number (e.g. when all forces accidentally cancel up to machine precission).
 		 	dt_new = dt_done/safety_factor; // by default, increase timestep a little
 		}

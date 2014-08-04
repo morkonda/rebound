@@ -15,11 +15,11 @@ function runepsilon {
 		sed "s/EPSILON/$e/g" param.template > param.template2
 		sed "s/SCHEME/$1/g" param.template2 > param.template3
 		sed "s/STEPSIZE/1/g" param.template3 > param.in
-		utime="$( TIMEFORMAT='%R';time ( doalarm 10  ./mercury6 ) 2>&1 1>/dev/null )"
+		utime="$( TIMEFORMAT='%R';time ( doalarm $2  ./mercury6 ) 2>&1 1>/dev/null )"
 		energy="$(../mercury_read/mercury_energy big.in big.dmp)"
 		if [[ $utime == *Alarm* ]]; then
 			echo "Did not finish in time."
-			echo "10. 1. $e" >> ../energy_$1.txt 
+			echo "$2 1. $e" >> ../energy_$1.txt 
 		else
 			echo "$utime $energy $e" >> ../energy_$1.txt 
 			echo "$utime $energy $e"  
@@ -45,11 +45,11 @@ function rundt {
 		sed "s/EPSILON/1/g" param.template > param.template2
 		sed "s/SCHEME/$1/g" param.template2 > param.template3
 		sed "s/STEPSIZE/$e/g" param.template3 > param.in
-		utime="$( TIMEFORMAT='%R';time ( doalarm 10 ./mercury6 ) 2>&1 1>/dev/null )"
+		utime="$( TIMEFORMAT='%R';time ( doalarm $2 ./mercury6 ) 2>&1 1>/dev/null )"
 		energy="$(../mercury_read/mercury_energy big.in big.dmp)"
 		if [[ $utime == *Alarm* ]]; then
 			echo "Did not finish in time."
-			echo "10. 1. $e" >> ../energy_$1.txt 
+			echo "$2 1. $e" >> ../energy_$1.txt 
 		else
 			echo "$utime $energy $e" >> ../energy_$1.txt 
 			echo "$utime $energy $e"  
@@ -68,7 +68,7 @@ function runepsilonnbody {
 	do 
 		exp=$(echo "scale=16; ($max-($min))/$points*$i+($min) " |bc)
 		e=$(echo "scale=16; e($exp*l(10))"  | bc -l )
-		utime="$( TIMEFORMAT='%R';time ( doalarm 10 ./nbody --integrator_epsilon=$e 2>&1 ) 2>&1 1>/dev/null )"
+		utime="$( TIMEFORMAT='%R';time ( doalarm $4 ./nbody --integrator_epsilon=$e 2>&1 ) 2>&1 1>/dev/null )"
 		if [ ! -f energy.txt ]; then
 			energy="-1"
 		else
@@ -76,7 +76,7 @@ function runepsilonnbody {
 		fi
 		if [[ $utime == *Alarm* ]]; then
 			echo "Did not finish in time."
-			echo "10. 1. $e" >> energy_$1.txt 
+			echo "$4 1. $e" >> energy_$1.txt 
 		else
 			echo "$utime $energy $e" >> energy_$1.txt 
 			echo "$utime $energy $e"  
@@ -92,7 +92,7 @@ function runnbodycanonical {
 	if [ $2 -eq 1 ]; then 
 		utime="$( TIMEFORMAT='%R';time ( ./nbody --integrator_epsilon=$canonical --dt=$dt  --outputenergy=$2 2>&1 ) 2>&1 1>/dev/null )"
 	else
-		utime="$( TIMEFORMAT='%R';time ( doalarm 10 ./nbody --integrator_epsilon=$canonical --dt=$dt  --outputenergy=$2 2>&1 ) 2>&1 1>/dev/null )"
+		utime="$( TIMEFORMAT='%R';time ( doalarm $3 ./nbody --integrator_epsilon=$canonical --dt=$dt  --outputenergy=$2 2>&1 ) 2>&1 1>/dev/null )"
 	fi
 	if [ ! -f energy.txt ]; then
 		energy="-1"
@@ -123,7 +123,7 @@ function rundtnbody {
 	do 
 		exp=$(echo "scale=16; ($max-($min))/$points*$i+($min) " |bc)
 		e=$(echo "scale=16; e($exp*l(10))"  | bc -l )
-		utime="$( TIMEFORMAT='%R';time ( doalarm 10 ./nbody --dt=$e 2>&1 ) 2>&1 1>/dev/null )"
+		utime="$( TIMEFORMAT='%R';time ( doalarm $4 ./nbody --dt=$e 2>&1 ) 2>&1 1>/dev/null )"
 		if [ ! -f energy.txt ]; then
 			energy="-1"
 		else
@@ -131,7 +131,7 @@ function rundtnbody {
 		fi
 		if [[ $utime == *Alarm* ]]; then
 			echo "Did not finish in time."
-			echo "10. 1. $e" >> energy_$1.txt 
+			echo "$4 1. $e" >> energy_$1.txt 
 		else
 			echo "$utime $energy $e" >> energy_$1.txt 
 			echo "$utime $energy $e"  
@@ -145,24 +145,29 @@ make problemgenerator
 rm -rf energy_*.txt
 
 
-for t in $(seq 6 7)
+for t in $(seq 8 8)
 do
 	echo "###################################"
 	echo "Running test case $t"
+	runtime="10"
+	if [ "$t" -eq "8" ]; then
+		runtime="1000"
+	fi
+
 
 	./problemgenerator --testcase=$t
 
 	make -s ias15
-	runepsilonnbody ias15 -3 0
-       runnbodycanonical ias15 0
-	runnbodycanonical ias15 1
+	runepsilonnbody ias15 -3 0 $runtime
+        runnbodycanonical ias15 0 $runtime
+	runnbodycanonical ias15 1 $runtime
      
 	make -s ra15
-	runepsilonnbody ra15 -10 -8
+	runepsilonnbody ra15 -10 -8 $runtime
 
 	make -s wh
-	rundtnbody wh 0 4
-	runnbodycanonical wh 1
+	rundtnbody wh 0 4 $runtime
+	runnbodycanonical wh 1 $runtime
 
 	pushd mercury
 	rm -f *.tmp
@@ -170,10 +175,10 @@ do
 	rm -f *.out
 	rm -f output.txt
 	#runepsilon bs 
-	runepsilon bs2
-	runepsilon radau 
+	runepsilon bs2 $runtime
+	runepsilon radau $runtime
 	#runepsilon hybrid 
-	rundt mvs 
+	rundt mvs $runtim
 	popd
 
 	rm -rf testcase_$t
