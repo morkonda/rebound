@@ -75,13 +75,13 @@ do for [i=0:7]{
 	}
 
 	plot \
-	"testcase_".i."/energy_ias15.txt" t "IAS15, {/Symbol e}=0.001-1.0", \
-	"testcase_".i."/energy_ias15_canonical.txt" u (0.0001):(1.) t "IAS15,  {/Symbol e}=0.01" ps 2 lt 6, \
-	"testcase_".i."/energy_ra15.txt" t "REBOUND RA15", \
-	"testcase_".i."/energy_wh.txt" t "      REBOUND WH",  \
-	"testcase_".i."/energy_bs2.txt" t "MERCURY BS2",  \
-	"testcase_".i."/energy_radau.txt" t "MERCURY RADAU" lt 2,  \
-	"testcase_".i."/energy_mvs.txt" t "      MERCURY MVS" lt 7,  \
+	"testcase_".i."/energy_ias15.txt" t "IAS15", \
+	"testcase_".i."/energy_ias15_canonical.txt" u (0.0001):(1.) t "IAS15, default" ps 2 lt 6, \
+	"testcase_".i."/energy_ra15.txt" t "RA15 (REBOUND)", \
+	"testcase_".i."/energy_wh.txt" t "      WH (REBOUND)",  \
+	"testcase_".i."/energy_bs2.txt" t "BS2 (MERCURY)",  \
+	"testcase_".i."/energy_radau.txt" t "RADAU (MERCURY)" lt 2,  \
+	"testcase_".i."/energy_mvs.txt" t "      MWS (MERCURY)" lt 7,  \
 	"testcase_".i."/energy_ias15_canonical.txt" notit ps 4 lt 6, \
 	"testcase_".i."/energy_ias15_canonical.txt" notit lt 1
 }
