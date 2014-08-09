@@ -46,6 +46,7 @@
 #include "communication_mpi.h"
 
 extern const double OMEGA;
+double intitial_density_profile(int side);
 int nghostx = 1;
 int nghosty = 1;
 int nghostz = 0;	/**< The boundary condition is periodic in z, but usually we don't need any ghostboxed as the disc is stratified */
@@ -69,10 +70,21 @@ void boundaries_check(){
 		}
 		// Azimuthal
 		while(particles[i].y>boxsize_y/2.){
+			int side = -1;
 			particles[i].y -= boxsize_y;
+			particles[i].vx = 0.;
+			particles[i].x = initial_density_profile(side);
+			//printf("\nx pos left = %f\t", particles[i].x);
+			particles[i].vy	= -1.5*particles[i].x*OMEGA;
 		}
 		while(particles[i].y<-boxsize_y/2.){
+			int side = 1;
 			particles[i].y += boxsize_y;
+			particles[i].vx = 0.;
+                        particles[i].x = initial_density_profile(side);
+			//printf("\nx pos right = %f\t", particles[i].x);
+                        particles[i].vy = -1.5*particles[i].x*OMEGA;
+
 		}
 		// Vertical (there should be no boundary, but periodic makes life easier)
 		while(particles[i].z>boxsize_z/2.){
