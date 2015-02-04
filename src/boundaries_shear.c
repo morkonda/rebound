@@ -70,20 +70,20 @@ void boundaries_check(){
 		}
 		// Azimuthal
 		while(particles[i].y>boxsize_y/2.){
-			int side = -1;
+			//int side = -1;
 			particles[i].y -= boxsize_y;
-			particles[i].vx = 0.;
-			particles[i].x = initial_density_profile(side);
+			//particles[i].vx = 0.;
+			//particles[i].x = initial_density_profile(side);
 			//printf("\nx pos left = %f\t", particles[i].x);
-			particles[i].vy	= -1.5*particles[i].x*OMEGA;
+			//particles[i].vy	= -1.5*particles[i].x*OMEGA;
 		}
 		while(particles[i].y<-boxsize_y/2.){
-			int side = 1;
+			//int side = 1;
 			particles[i].y += boxsize_y;
-			particles[i].vx = 0.;
-                        particles[i].x = initial_density_profile(side);
+			//particles[i].vx = 0.;
+                        //particles[i].x = initial_density_profile(side);
 			//printf("\nx pos right = %f\t", particles[i].x);
-                        particles[i].vy = -1.5*particles[i].x*OMEGA;
+                        //particles[i].vy = -1.5*particles[i].x*OMEGA;
 
 		}
 		// Vertical (there should be no boundary, but periodic makes life easier)

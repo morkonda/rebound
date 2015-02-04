@@ -144,7 +144,7 @@ void problem_init(int argc, char* argv[])
 ///	printf("%f\n",input_get_double(argc,argv,"a",123));
 	
 	//double increment			= 100.;
-	double increment 			= 20.;
+	double increment 			= 120.;
 
 	boxsize 				= 100.*increment;				// m
 
@@ -161,6 +161,14 @@ void problem_init(int argc, char* argv[])
 
 init_box();
 	
+	moonlet_radius				= 150./2.;			//scaled moonlet radius 				// m
+	double temp_moonlet_radius		= 150./2.;
+	//moonlet_radius			= 1000.;		//Bleriot's radius					// m
+	//r_h					= moonlet_radius;
+	a_0					= pow(((G*(M_saturn))/(OMEGA*OMEGA)),(1./3.));			// m
+	moonlet_mass				= (3.*M_saturn)*pow((moonlet_radius/a_0),3.);
+	r_h 					= a_0*pow((moonlet_mass/(3*M_saturn)),(1./3.));
+
 	// Initial conditions
 
 	//printf("Toomre wavelength: %f m \n",2.*M_PI*M_PI*surfacedensity/OMEGA/OMEGA*G);
@@ -178,7 +186,8 @@ init_box();
 	double number_density 			= 0.;
 	double surface_area 			= 0.;
 	//double x_left_1		 	= -32.4*increment;	//real x_left_1
-	x_left_1				= -boxsize/5.;
+	//x_left_1				= -boxsize/5.;
+	x_left_1				= -3.*r_h; 
 	//double x_right_1 	 		= 27.5*increment;
 	//double x_left_1			= -35.5*increment;
 	//double x_left_1			= -1500.;
@@ -211,12 +220,6 @@ init_box();
 	x_right_2 				= (1./slope_right)*(surface_density_upper-surface_density_lower+(slope_right*x_right_1));
 
 
-	moonlet_radius				= 150.;			//scaled moonlet radius 				// m
-	double temp_moonlet_radius		= 150.;
-	//moonlet_radius			= 1000.;		//Bleriot's radius					// m
-	r_h					= moonlet_radius;
-	a_0					= pow(((G*(M_saturn))/(OMEGA*OMEGA)),(1./3.));			// m
-	moonlet_mass				= (3.*M_saturn)*pow((moonlet_radius/a_0),3.);
 	//moonlet_mass 			        = moonlet_density*(4./3.)*M_PI*pow(temp_moonlet_radius, 3.);			// kg
 	//moonlet_mass				= 2.e12;									// kg
 	//moonlet_x				= -30.;			//scaled moonlet shift					// m
@@ -286,6 +289,8 @@ bool check(double x, double y)
         total_mass = total_mass_1+total_mass_2+total_mass_3+total_mass_4+total_mass_5;
 
 printf("Total mass particles = %f\n", total_mass);
+
+printf("M_ring/M_moonlet = %f\n", total_mass/moonlet_mass);
 
 while(mass<total_mass)
 {
