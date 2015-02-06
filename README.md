@@ -248,6 +248,86 @@ The following examples can all be found in the `examples` directory.
 Whatever you plan to do with REBOUND, chances are there is already an example available which you can use as a starting point.
 
 
+*  **examples/eccentric_orbit**
+
+  This example is using the following modules:  
+  `gravity_direct.c`
+  `boundaries_open.c`
+  `integrator_ias15.c`
+  `collisions_none.c`
+
+  This example uses the IAS15 integrator to simulate
+  a very eccentric planetary orbit. The integrator
+  automatically adjusts the timestep so that the pericentre passages
+  resovled with high accuracy.
+  
+  
+
+*  **examples/kozai**
+
+  This example is using the following modules:  
+  `gravity_direct.c`
+  `boundaries_open.c`
+  `integrator_ias15.c`
+  `collisions_none.c`
+
+  This example uses the IAS15 integrator to simulate
+  a Lidov Kozai cycle of a planet perturbed by a distant star. The integrator
+  automatically adjusts the timestep so that even very high
+  eccentricity encounters are resovled with high accuracy.
+  
+  
+
+*  **examples/overstability**
+
+  This example is using the following modules:  
+  `gravity_none.c`
+  `boundaries_shear.c`
+  `integrator_sei.c`
+  `collisions_sweep.c`
+
+  A narrow box of Saturn's rings is simulated to
+  study the viscous overstability. Collisions are resolved using
+  the plane-sweep method.
+  
+  It takes about 30 orbits for the overstability to occur. You can
+  speed up the calculation by turning off the visualization. Just press
+  `d` while the simulation is running. Press `d` again to turn it back on.
+  
+  You can change the viewing angle of the camera with your mouse or by pressing
+  the `r` key.
+  
+
+*  **examples/selfgravity_disc_grape**
+
+  This example is using the following modules:  
+  `gravity_grape.c`
+  `boundaries_open.c`
+  `integrator_leapfrog.c`
+  `collisions_none.c`
+
+  A self-gravitating disc is integrated using
+  the leap frog integrator. This example is using the GRAPE
+  module to calculate the self-gravity. You need to have a physical
+  GRAPE card in your computer to run this example.
+  Collisions are not resolved.
+  
+
+*  **examples/shearing_sheet_grape**
+
+  This example is using the following modules:  
+  `gravity_grape.c`
+  `boundaries_shear.c`
+  `integrator_sei.c`
+  `collisions_sweep.c`
+
+  This is yet another shearing sheet example,
+  it uses a GRAPE to calculate gravity. Note that you need to have
+  a physical GRAPE card installed in your computer to run this
+  simulation. Particle properties resemble those found in
+  Saturn's rings.
+  
+
 *  **examples/bouncing_balls**
 
   This example is using the following modules:  
@@ -262,31 +342,106 @@ Whatever you plan to do with REBOUND, chances are there is already an example av
   collisions_sweep.c in the Makefile.
   
 
-*  **examples/bouncing_balls_corners**
+*  **examples/restricted_threebody**
 
   This example is using the following modules:  
   `gravity_direct.c`
-  `boundaries_periodic.c`
-  `integrator_leapfrog.c`
-  `collisions_tree.c`
+  `boundaries_open.c`
+  `integrator_wh.c`
+  `collisions_none.c`
 
-  This example tests collision detection methods accros box boundaries.
-  There are four particles, one in each corner. To see the ghost boxes in OpenGL
-  press `g` while the simulation is running.
+  This example simulates a disk of test particles around
+  a central object, being perturbed by a planet.
   
 
-*  **examples/bouncing_string**
+*  **examples/shearing_sheet_profiling**
+
+  This example is using the following modules:  
+  `gravity_tree.c`
+  `boundaries_shear.c`
+  `integrator_sei.c`
+  `collisions_tree.c`
+
+  This example demonstrates how to use the
+  profiling tool that comes with REBOUND to find out which parts
+  of your code are slow. To turn on this option, simple set
+  `PROFILING=1` in the Makefile.
+  
+
+*  **examples/symplectic_integrator**
+
+  This example is using the following modules:  
+  `gravity_direct.c`
+  `boundaries_open.c`
+  `integrator_wh.c`
+  `collisions_none.c`
+
+  This example uses the symplectic Wisdom Holman (WH) integrator
+  to integrate test particles on eccentric orbits in a fixed potential.
+  Note that the WH integrator assumes that the central object is at the origin.
+  
+
+*  **examples/spreading_ring**
+
+  This example is using the following modules:  
+  `gravity_direct.c`
+  `boundaries_open.c`
+  `integrator_wh.c`
+  `collisions_sweepphi.c`
+
+  A narrow ring of collisional particles is spreading.
+  The example uses the Wisdom Holman integrator. A plane-sweep algorithm
+  in the phi direction is used to detect collisions.
+  
+
+*  **examples/viewer**
 
   This example is using the following modules:  
   `gravity_none.c`
   `boundaries_periodic.c`
+  `integrator_dummy.c`
+  `collisions_dummy.c`
+
+  This example doesn't simulate anything. It's just a
+  visualization toll that can display data in the form x, y, z, r.
+  This might be useful when large simulations have been run and you want
+  to look (at parts of) it at a later time.
+  
+  Note that this example uses only dummy modules.
+  
+
+*  **examples/selfgravity_disc**
+
+  This example is using the following modules:  
+  `gravity_tree.c`
+  `boundaries_open.c`
   `integrator_leapfrog.c`
+  `collisions_none.c`
+
+  A self-gravitating disc is integrated using
+  the leap frog integrator. This example is also compatible with
+  the Wisdom Holman integrator or the IAS15 integrator. Collisions
+  are not resolved.
+  
+
+*  **examples/restarting_simulation**
+
+  This example is using the following modules:  
+  `gravity_direct.c`
+  `boundaries_shear.c`
+  `integrator_sei.c`
   `collisions_direct.c`
 
-  This example tests collision detection methods.
-  The example uses a non-square, rectangular box. 10 particles are placed
-  along a line. All except one of the particles are at rest
-  initially.
+  This example demonstrates how to restart a simulation
+  using a binary file. A shearing sheet ring simulation is used, but
+  the same method can be applied to any other type of simulation.
+  
+  First, run the program with `./nbody`.
+  Random initial conditions are created and
+  a restart file is written once per orbit.
+  Then, to restart the simulation, run the
+  program with `./nbody --restart restart.bin`.
+  
   
 
 *  **examples/circumplanetarydust**
@@ -308,134 +463,26 @@ Whatever you plan to do with REBOUND, chances are there is already an example av
   many.
   
 
-*  **examples/closeencounter**
+*  **examples/outer_solar_system**
 
   This example is using the following modules:  
   `gravity_direct.c`
   `boundaries_open.c`
-  `integrator_ias15.c`
+  `integrator_wh.c`
   `collisions_none.c`
 
-  This example integrates a densly packed planetary system
-  which becomes unstable on a timescale of only a few orbits. The IAS15
-  integrator with adaptive timestepping is used. This integrator
-  automatically decreases the timestep whenever a close
-  enocunter happens. IAS15 is very high order and ideally suited for the
-  detection of these kind of encounters.
+  This example uses the symplectic Wisdom Holman integrator
+  to integrate the outer planets of the solar system. The initial
+  conditions are taken from Applegate et al 1986. Pluto is a test
+  particle. This example is a good starting point for any long term orbit
+  integrations.
   
-
-*  **examples/closeencounter_record**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
-  `boundaries_open.c`
-  `integrator_ias15.c`
-  `collisions_direct.c`
-
-  This example integrates a densly packed planetary system
-  which becomes unstable on a timescale of only a few orbits.
-  The example is identical to the `close_encounter` sample, except that
-  the collisions are recorded and written to a file. What kind of collisions
-  are recorded can be easily modified. It is also possible to implement some
-  additional physics whenever a collision has been detection (e.g. fragmentation).
-  The collision search is by default a direct search, i.e. O(N^2) but can be
-  changed to a tree by using the `collisions_tree.c` module.
+  You probably want to turn off the visualization for any serious runs.
+  Just go to the makefile and set `OPENGL=0`.
   
-
-*  **examples/dragforce**
-
-  This example is using the following modules:  
-  `gravity_none.c`
-  `boundaries_open.c`
-  `collisions_none.c`
-  `integrator_ias15.c`
-
-  This is a very simple example on how to implement a velocity
-  dependent drag force. The example uses the IAS15 integrator, which
-  is ideally suited to handle non-conservative forces.
-  No gravitational forces or collisions are present.
-  
-
-*  **examples/eccentric_orbit**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
-  `boundaries_open.c`
-  `integrator_ias15.c`
-  `collisions_none.c`
-
-  This example uses the IAS15 integrator to simulate
-  a very eccentric planetary orbit. The integrator
-  automatically adjusts the timestep so that the pericentre passages
-  resovled with high accuracy.
-  
-  
-
-*  **examples/forced_migration**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
-  `boundaries_open.c`
-  `integrator_ias15.c`
-  `collisions_none.c`
-
-  This example applies dissipative forces to two
-  bodies orbiting a central object. The forces are specified
-  in terms of damping timescales for the semi-major axis and
-  eccentricity. This mimics planetary micration in a protostellar disc.
-  The example reproduces the study of Lee & Peale (2002) on the
-  formation of the planetary system GJ876. For a comparison,
-  see figure 4 in their paper. The IAS15 integrator is used
-  because the forces are velocity dependent.
-  Special thanks goes to Willy Kley for helping me to implement
-  the damping terms as actual forces.
-  
-  
-
-*  **examples/granulardynamics**
-
-  This example is using the following modules:  
-  `gravity_none.c`
-  `boundaries_periodic.c`
-  `integrator_leapfrog.c`
-  `collisions_tree.c`
-
-  This example is about granular dynamics. No gravitational
-  forces are present in this example, which is why the module
-  `gravity_none.c` is used. Two boundary layers made of
-  particles simulate shearing walls. These walls are heating
-  up the particles, create a dense and cool layer in the middle.
-  
-
-*  **examples/J2**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
-  `boundaries_open.c`
-  `integrator_ias15.c`
-  `collisions_none.c`
-
-  This example presents an implementation of the J2
-  gravitational moment. The equation of motions are integrated with
-  the 15th order IAS15 integrator. The parameters in this examples
-  have been chosen to represent those of Saturn, but you can easily
-  change them or even include higher order terms in the multipole
-  expansion.
-  
-
-*  **examples/kozai**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
-  `boundaries_open.c`
-  `integrator_ias15.c`
-  `collisions_none.c`
-
-  This example uses the IAS15 integrator to simulate
-  a Lidov Kozai cycle of a planet perturbed by a distant star. The integrator
-  automatically adjusts the timestep so that even very high
-  eccentricity encounters are resovled with high accuracy.
-  
+  You might also want to change the integrator in the Makefile to
+  `integrator_ias15.c` which is an extremly high order accurate integrator
+  that can handle close encounters really well.
   
 
 *  **examples/opencl**
@@ -469,91 +516,79 @@ Whatever you plan to do with REBOUND, chances are there is already an example av
   
   
 
-*  **examples/outer_solar_system**
+*  **examples/bouncing_balls_corners**
 
   This example is using the following modules:  
   `gravity_direct.c`
-  `boundaries_open.c`
-  `integrator_wh.c`
-  `collisions_none.c`
+  `boundaries_periodic.c`
+  `integrator_leapfrog.c`
+  `collisions_tree.c`
 
-  This example uses the symplectic Wisdom Holman integrator
-  to integrate the outer planets of the solar system. The initial
-  conditions are taken from Applegate et al 1986. Pluto is a test
-  particle. This example is a good starting point for any long term orbit
-  integrations.
-  
-  You probably want to turn off the visualization for any serious runs.
-  Just go to the makefile and set `OPENGL=0`.
-  
-  You might also want to change the integrator in the Makefile to
-  `integrator_ias15.c` which is an extremly high order accurate integrator
-  that can handle close encounters really well.
+  This example tests collision detection methods accros box boundaries.
+  There are four particles, one in each corner. To see the ghost boxes in OpenGL
+  press `g` while the simulation is running.
   
 
-*  **examples/overstability**
+*  **examples/shearing_sheet_fft**
 
   This example is using the following modules:  
-  `gravity_none.c`
+  `gravity_fft.c`
   `boundaries_shear.c`
   `integrator_sei.c`
   `collisions_sweep.c`
 
-  A narrow box of Saturn's rings is simulated to
-  study the viscous overstability. Collisions are resolved using
-  the plane-sweep method.
-  
-  It takes about 30 orbits for the overstability to occur. You can
-  speed up the calculation by turning off the visualization. Just press
-  `d` while the simulation is running. Press `d` again to turn it back on.
-  
-  You can change the viewing angle of the camera with your mouse or by pressing
-  the `r` key.
+  This problem is identical to the other shearing
+  sheet examples but uses an FFT based gravity solver.
+  To run this example, you need to install the FFTW library.
+  Collisions are detected using a plane sweep algorithm.
+  There is no tree present in this simulation.
   
 
-*  **examples/prdrag**
+*  **examples/dragforce**
+
+  This example is using the following modules:  
+  `gravity_none.c`
+  `boundaries_open.c`
+  `collisions_none.c`
+  `integrator_ias15.c`
+
+  This is a very simple example on how to implement a velocity
+  dependent drag force. The example uses the IAS15 integrator, which
+  is ideally suited to handle non-conservative forces.
+  No gravitational forces or collisions are present.
+  
+
+*  **examples/granulardynamics**
+
+  This example is using the following modules:  
+  `gravity_none.c`
+  `boundaries_periodic.c`
+  `integrator_leapfrog.c`
+  `collisions_tree.c`
+
+  This example is about granular dynamics. No gravitational
+  forces are present in this example, which is why the module
+  `gravity_none.c` is used. Two boundary layers made of
+  particles simulate shearing walls. These walls are heating
+  up the particles, create a dense and cool layer in the middle.
+  
+
+*  **examples/closeencounter_record**
 
   This example is using the following modules:  
   `gravity_direct.c`
   `boundaries_open.c`
   `integrator_ias15.c`
-  `collisions_none.c`
-
-  This example provides an implementation of the
-  Poynting-Robertson effect. The code is using the IAS15 integrator
-  which is ideally suited for this velocity dependent force.
-  
-
-*  **examples/restarting_simulation**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
-  `boundaries_shear.c`
-  `integrator_sei.c`
   `collisions_direct.c`
 
-  This example demonstrates how to restart a simulation
-  using a binary file. A shearing sheet ring simulation is used, but
-  the same method can be applied to any other type of simulation.
-  
-  First, run the program with `./nbody`.
-  Random initial conditions are created and
-  a restart file is written once per orbit.
-  Then, to restart the simulation, run the
-  program with `./nbody --restart restart.bin`.
-  
-  
-
-*  **examples/restricted_threebody**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
-  `boundaries_open.c`
-  `integrator_wh.c`
-  `collisions_none.c`
-
-  This example simulates a disk of test particles around
-  a central object, being perturbed by a planet.
+  This example integrates a densly packed planetary system
+  which becomes unstable on a timescale of only a few orbits.
+  The example is identical to the `close_encounter` sample, except that
+  the collisions are recorded and written to a file. What kind of collisions
+  are recorded can be easily modified. It is also possible to implement some
+  additional physics whenever a collision has been detection (e.g. fragmentation).
+  The collision search is by default a direct search, i.e. O(N^2) but can be
+  changed to a tree by using the `collisions_tree.c` module.
   
 
 *  **examples/restricted_threebody_mpi**
@@ -571,48 +606,52 @@ Whatever you plan to do with REBOUND, chances are there is already an example av
   Run with `mpirun -np 4 nbody`.
   
 
-*  **examples/selfgravity_disc**
+*  **examples/bouncing_string**
 
   This example is using the following modules:  
-  `gravity_tree.c`
-  `boundaries_open.c`
+  `gravity_none.c`
+  `boundaries_periodic.c`
   `integrator_leapfrog.c`
-  `collisions_none.c`
+  `collisions_direct.c`
 
-  A self-gravitating disc is integrated using
-  the leap frog integrator. This example is also compatible with
-  the Wisdom Holman integrator or the IAS15 integrator. Collisions
-  are not resolved.
+  This example tests collision detection methods.
+  The example uses a non-square, rectangular box. 10 particles are placed
+  along a line. All except one of the particles are at rest
+  initially.
   
 
-*  **examples/selfgravity_disc_grape**
+*  **examples/prdrag**
 
   This example is using the following modules:  
-  `gravity_grape.c`
+  `gravity_direct.c`
   `boundaries_open.c`
-  `integrator_leapfrog.c`
+  `integrator_ias15.c`
   `collisions_none.c`
 
-  A self-gravitating disc is integrated using
-  the leap frog integrator. This example is using the GRAPE
-  module to calculate the self-gravity. You need to have a physical
-  GRAPE card in your computer to run this example.
-  Collisions are not resolved.
+  This example provides an implementation of the
+  Poynting-Robertson effect. The code is using the IAS15 integrator
+  which is ideally suited for this velocity dependent force.
   
 
-*  **examples/selfgravity_plummer**
+*  **examples/forced_migration**
 
   This example is using the following modules:  
-  `gravity_tree.c`
+  `gravity_direct.c`
   `boundaries_open.c`
-  `integrator_leapfrog.c`
+  `integrator_ias15.c`
   `collisions_none.c`
 
-  A self-gravitating plummer sphere is integrated using
-  the leap frog integrator. Collisions are not resolved. Note that the
-  fixed timestep might not allow you to resolve individual two-body
-  encounters. An alternative integrator is `integrator_ias15.c` which
-  comes with adaptive timestepping.
+  This example applies dissipative forces to two
+  bodies orbiting a central object. The forces are specified
+  in terms of damping timescales for the semi-major axis and
+  eccentricity. This mimics planetary micration in a protostellar disc.
+  The example reproduces the study of Lee & Peale (2002) on the
+  formation of the planetary system GJ876. For a comparison,
+  see figure 4 in their paper. The IAS15 integrator is used
+  because the forces are velocity dependent.
+  Special thanks goes to Willy Kley for helping me to implement
+  the damping terms as actual forces.
+  
   
 
 *  **examples/shearing_sheet**
@@ -623,12 +662,9 @@ Whatever you plan to do with REBOUND, chances are there is already an example av
   `integrator_sei.c`
   `collisions_tree.c`
 
-  This example simulates a small patch of Saturn's
-  Rings in shearing sheet coordinates. If you have OpenGL enabled,
-  you'll see one copy of the computational domain. Press `g` to see
-  the ghost boxes which are used to calculate gravity and collisions.
-  Particle properties resemble those found in Saturn's rings.
-  
+  This problem uses shearing sheet boundary
+  conditions. Particle properties resemble those found in
+  Saturn's rings.
   
 
 *  **examples/shearing_sheet_2**
@@ -651,90 +687,51 @@ Whatever you plan to do with REBOUND, chances are there is already an example av
   
   
 
-*  **examples/shearing_sheet_fft**
+*  **examples/J2**
 
   This example is using the following modules:  
-  `gravity_fft.c`
-  `boundaries_shear.c`
-  `integrator_sei.c`
-  `collisions_sweep.c`
+  `gravity_direct.c`
+  `boundaries_open.c`
+  `integrator_ias15.c`
+  `collisions_none.c`
 
-  This problem is identical to the other shearing
-  sheet examples but uses an FFT based gravity solver.
-  To run this example, you need to install the FFTW library.
-  Collisions are detected using a plane sweep algorithm.
-  There is no tree present in this simulation.
+  This example presents an implementation of the J2
+  gravitational moment. The equation of motions are integrated with
+  the 15th order IAS15 integrator. The parameters in this examples
+  have been chosen to represent those of Saturn, but you can easily
+  change them or even include higher order terms in the multipole
+  expansion.
   
 
-*  **examples/shearing_sheet_grape**
+*  **examples/closeencounter**
 
   This example is using the following modules:  
-  `gravity_grape.c`
-  `boundaries_shear.c`
-  `integrator_sei.c`
-  `collisions_sweep.c`
+  `gravity_direct.c`
+  `boundaries_open.c`
+  `integrator_ias15.c`
+  `collisions_none.c`
 
-  This is yet another shearing sheet example,
-  it uses a GRAPE to calculate gravity. Note that you need to have
-  a physical GRAPE card installed in your computer to run this
-  simulation. Particle properties resemble those found in
-  Saturn's rings.
+  This example integrates a densly packed planetary system
+  which becomes unstable on a timescale of only a few orbits. The IAS15
+  integrator with adaptive timestepping is used. This integrator
+  automatically decreases the timestep whenever a close
+  enocunter happens. IAS15 is very high order and ideally suited for the
+  detection of these kind of encounters.
   
 
-*  **examples/shearing_sheet_profiling**
+*  **examples/selfgravity_plummer**
 
   This example is using the following modules:  
   `gravity_tree.c`
-  `boundaries_shear.c`
-  `integrator_sei.c`
-  `collisions_tree.c`
-
-  This example demonstrates how to use the
-  profiling tool that comes with REBOUND to find out which parts
-  of your code are slow. To turn on this option, simple set
-  `PROFILING=1` in the Makefile.
-  
-
-*  **examples/spreading_ring**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
   `boundaries_open.c`
-  `integrator_wh.c`
-  `collisions_sweepphi.c`
-
-  A narrow ring of collisional particles is spreading.
-  The example uses the Wisdom Holman integrator. A plane-sweep algorithm
-  in the phi direction is used to detect collisions.
-  
-
-*  **examples/symplectic_integrator**
-
-  This example is using the following modules:  
-  `gravity_direct.c`
-  `boundaries_open.c`
-  `integrator_wh.c`
+  `integrator_leapfrog.c`
   `collisions_none.c`
 
-  This example uses the symplectic Wisdom Holman (WH) integrator
-  to integrate test particles on eccentric orbits in a fixed potential.
-  Note that the WH integrator assumes that the central object is at the origin.
-  
-
-*  **examples/viewer**
-
-  This example is using the following modules:  
-  `gravity_none.c`
-  `boundaries_periodic.c`
-  `integrator_dummy.c`
-  `collisions_dummy.c`
-
-  This example doesn't simulate anything. It's just a
-  visualization toll that can display data in the form x, y, z, r.
-  This might be useful when large simulations have been run and you want
-  to look (at parts of) it at a later time.
-  
-  Note that this example uses only dummy modules.
+  A self-gravitating plummer sphere is integrated using
+  the leap frog integrator. Collisions are not resolved. Note that the
+  fixed timestep might not allow you to resolve individual two-body
+  encounters. An alternative integrator is `integrator_ias15.c` which
+  comes with adaptive timestepping.
   
 This viewer can display data in the form x, y, z, r.  
 OpenGL keyboard command

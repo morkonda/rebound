@@ -156,7 +156,8 @@ void problem_init(int argc, char* argv[])
 	//	boxsize = atof(argv[1]);
 	//}
 ///
-
+	printf("Cut_off_boundary: Left = %f\tRight = %f\n", cut_off_boundary_left, cut_off_boundary_right);
+	
 	printf("Box: Left = %f\tRight = %f\n", -boxsize, boxsize);
 
 init_box();
@@ -166,8 +167,9 @@ init_box();
 	//moonlet_radius			= 1000.;		//Bleriot's radius					// m
 	//r_h					= moonlet_radius;
 	a_0					= pow(((G*(M_saturn))/(OMEGA*OMEGA)),(1./3.));			// m
-	moonlet_mass				= (3.*M_saturn)*pow((moonlet_radius/a_0),3.);
-	r_h 					= a_0*pow((moonlet_mass/(3*M_saturn)),(1./3.));
+	//moonlet_mass				= (3.*M_saturn)*pow((moonlet_radius/a_0),3.);
+	moonlet_mass                         	= moonlet_density*(4./3.)*M_PI*pow(temp_moonlet_radius, 3.);                    // kg
+	r_h 					= a_0*pow((moonlet_mass/(3.*M_saturn)),(1./3.));
 
 	// Initial conditions
 
@@ -188,6 +190,7 @@ init_box();
 	//double x_left_1		 	= -32.4*increment;	//real x_left_1
 	//x_left_1				= -boxsize/5.;
 	x_left_1				= -3.*r_h; 
+	//x_left_1				= -4.*r_h;
 	//double x_right_1 	 		= 27.5*increment;
 	//double x_left_1			= -35.5*increment;
 	//double x_left_1			= -1500.;
@@ -415,9 +418,9 @@ while(mass<total_mass)
 	surface_area 				= (boxsize_x/2.)*(boxsize_y/2);
 
 
-	printf("\n-----------Before Shift-------------\n");
-	printf("x_left_1, x_left_2 = %16.16f\t%16.16f\n", x_left_1, x_left_2);
-	printf("x_right_1, x_right_2 = %16.16f\t%16.16f\n", x_right_1, x_right_2);
+	//printf("\n-----------Before Shift-------------\n");
+	//printf("x_left_1, x_left_2 = %16.16f\t%16.16f\n", x_left_1, x_left_2);
+	//printf("x_right_1, x_right_2 = %16.16f\t%16.16f\n", x_right_1, x_right_2);
 
 	x_left_1 -= shift;
 	x_left_2 -= shift;
@@ -436,6 +439,7 @@ while(mass<total_mass)
 	//printf("a_0 = %f\n", a_0);
 	//printf("a_moonlet = %f\n", a);
 	//printf("J_m = %f\n", J_m);
+	printf("Radius of the moonlet = %e m \n", moonlet_radius);
 	printf("Hill radius of the moonlet = %e m \n",r_h);
 	printf("Moonlet_x = %f m \n", moonlet_x);
 
