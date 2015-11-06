@@ -43,14 +43,16 @@ void main(int argc, char* argv[])
 	double r_h 					= a_0*pow((moonlet_mass/(3.*M_saturn)),(1./3.));
 
 	// Initial conditions
-	double x_left_1					= -3.*r_h; 
-	double slope_left				= -4.8;
-	double slope_right				= 1.44;
-	double surface_density_upper			= 338./20.;
-	double surface_density_lower	 		= 0.;
-	double x_left_2	 				= (1./slope_left)*(surface_density_lower-surface_density_upper+(slope_left*x_left_1));
-	double x_right_1				= -x_left_2;
-	double x_right_2 				= (1./slope_right)*(surface_density_upper-surface_density_lower+(slope_right*x_right_1));
+	double x_left_1					= -3.*r_h;						// m
+	double x_left_2					= -2.*r_h;						// m
+	double surface_density_upper			= 338./10.;						// kg m^-2
+	double surface_density_lower			= 0.;							// kg m^-2
+	double x_right_1				= 1.75*r_h;						// m
+	double x_right_2				= 3.*r_h;						// m
+
+
+	double slope_left				= (surface_density_lower-surface_density_upper)/(x_left_2-x_left_1);
+	double slope_right				= (surface_density_upper-surface_density_lower)/(x_right_2-x_right_1);
 	double moonlet_x 				= 0.;							// m
         double a					= a_0 + moonlet_x;      //actual semi-major axis        // m
         double J_m					= a_0*a_0*n_0;
@@ -63,7 +65,7 @@ void main(int argc, char* argv[])
         double total_mass_5 = (surface_density_upper)*((boxsize_x/2.)-x_right_2)*boxsize_y;
         double total_mass = total_mass_1+total_mass_2+total_mass_3+total_mass_4+total_mass_5;
 
-	printf("\nM_ring/M_moonlet = %f\n", total_mass/moonlet_mass);
+	printf("M_ring/M_moonlet = %f\n", total_mass/moonlet_mass);
 
 
 
